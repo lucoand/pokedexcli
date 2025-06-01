@@ -80,6 +80,14 @@ func commandInspect(_ *pokeapi.Config, name string) error {
 	return nil
 }
 
+func commandPokedex(_ *pokeapi.Config, _ string) error {
+	fmt.Println("Your Pokedex:")
+	for name := range pokedex {
+		fmt.Printf(" - %v\n", name)
+	}
+	return nil
+}
+
 func init() {
 	commands["help"] = cliCommand{
 		name:        "help",
@@ -115,6 +123,11 @@ func init() {
 		name:        "inspect",
 		description: "Displays information about pokemon that have been caught.",
 		callback:    commandInspect,
+	}
+	commands["pokedex"] = cliCommand{
+		name:        "pokedex",
+		description: "Displays a list of all caught pokemon.",
+		callback:    commandPokedex,
 	}
 	config.Previous = ""
 	config.Next = "https://pokeapi.co/api/v2/location-area/"
