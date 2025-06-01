@@ -20,6 +20,7 @@ var commands = map[string]cliCommand{}
 var config = pokeapi.Config{}
 var interval, _ = time.ParseDuration("5s")
 var cache = pokecache.NewCache(interval)
+var pokedex = map[string]pokeapi.Pokemon{}
 
 func cleanInput(text string) []string {
 	text = strings.ToLower(text)
@@ -66,31 +67,54 @@ func commandExplore(_ *pokeapi.Config, location string) error {
 	return nil
 }
 
+func commandCatch(_ *pokeapi.Config, name string) error {
+	pokemon, caught := pokeapi.Catch(name, cache)
+	if caught {
+		pokedex[name] = pokemon
+	}
+	return nil
+}
+
+func commandInspect(_ *pokeapi.Config, name string) error {
+	pokeapi.PrintPokedexInfo(name, pokedex)
+	return nil
+}
+
 func init() {
 	commands["help"] = cliCommand{
 		name:        "help",
-		description: "Displays a help message",
+		description: "Displays a help message.",
 		callback:    commandHelp,
 	}
 	commands["exit"] = cliCommand{
 		name:        "exit",
-		description: "Exit the Pokedex",
+		description: "Exit the Pokedex.",
 		callback:    commandExit,
 	}
 	commands["map"] = cliCommand{
 		name:        "map",
-		description: "Display the next 20 location areas",
+		description: "Display the next 20 location areas.",
 		callback:    commandMap,
 	}
 	commands["mapb"] = cliCommand{
 		name:        "mapb",
-		description: "Display the previous 20 location areas",
+		description: "Display the previous 20 location areas.",
 		callback:    commandMapB,
 	}
 	commands["explore"] = cliCommand{
 		name:        "explore",
-		description: "Usage: \"explore <area>\". Lists pokemon available in target <area>",
+		description: "Usage: \"explore <area>\". Lists pokemon available in target <area>.",
 		callback:    commandExplore,
+	}
+	commands["catch"] = cliCommand{
+		name:        "catch",
+		description: "Usage: catch <pokemon>.  Attempts to catch named <pokemon>.",
+		callback:    commandCatch,
+	}
+	commands["inspect"] = cliCommand{
+		name:        "inspect",
+		description: "Displays information about pokemon that have been caught.",
+		callback:    commandInspect,
 	}
 	config.Previous = ""
 	config.Next = "https://pokeapi.co/api/v2/location-area/"
